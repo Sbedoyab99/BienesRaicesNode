@@ -1,4 +1,4 @@
 node_modules
-.eslintrc.js
+.eslintrc.cjs
 package-lock.json
 .env
