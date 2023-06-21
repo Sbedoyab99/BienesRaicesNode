@@ -1,2 +1,34 @@
-div
-	h2 Crea tu Cuenta
+extends ../layout/index
+
+block contenido
+	div(class="py-10")
+		h1(class="text-4xl my-10 font-extrabold text-center") Bienes
+			span(class="font-normal") Raices
+		h2(class="text-center text-2xl font-extrabold")= pagina
+
+		div(class="mt-8 mx-auto max-w-lg")
+			div(class="bg-white py-8 px-4 shadow")
+				form(action="" class="space-y-5")
+					div
+						label(for="nombre" class="block text-sm uppercase text-gray-500 mb-2 font-bold") Nombre
+						input(type="text" id="nombre" class="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
+						placeholder="Tu Nombre" name="nombre")
+					div  
+						label(for="email" class="block text-sm uppercase text-gray-500 mb-2 font-bold") Correo
+						input(type="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
+						placeholder="Ingresa tu correo" name="email")
+					div  
+						label(for="password" class="block text-sm uppercase text-gray-500 mb-2 font-bold") Contraseña
+						input(type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
+						placeholder="Ingresa tu contraseña" name="password")
+					div  
+						label(for="repetir_password" class="block text-sm uppercase text-gray-500 mb-2 font-bold") Repite tu Contraseña
+						input(type="password" id="repetir_password" class="w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400"
+						placeholder="Repite tu Contraseña" name="repetir_password")
+					input(type="submit" value="Crear Cuenta" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 cursor-pointer")
+					div(class="flex items-center justify-between")
+						a(href="/auth/login" class="text-gray-500 text-xs") ¿Ya Tienes una Cuenta? 
+							b Inicia Sesíon
+						a(href="/auth/olvide-password" class="text-gray-500 text-xs") 
+							i ¿Olvidaste tu Contraseña?
+							
