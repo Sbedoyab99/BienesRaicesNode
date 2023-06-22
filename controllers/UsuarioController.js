@@ -1,17 +1,75 @@
 import { check, validationResult } from 'express-validator'
 import bcrypt from 'bcrypt'
 import Usuario from '../models/Usuario.js'
-import { generarId } from '../helpers/tokens.js'
+import { generarId, generarJWT } from '../helpers/tokens.js'
 import { emailRegistro, emailRecuperar } from '../helpers/email.js'
 
 const formularioLogin = (req, res) => {
   res.render('auth/login', {
-    pagina: 'Iniciar Sesión'
+    pagina: 'Iniciar Sesión',
+    csrfToken: req.csrfToken()
   })
 }
 
+const Autenticar = async (req, res) => {
+  // Validar los campos
+  await check('email').isEmail().withMessage('El Formato del Email no es valido.').notEmpty().withMessage('El Email es obligatorio.').run(req)
+  await check('password').notEmpty().withMessage('Ingresa una contraseña.').run(req)
+  const resultado = validationResult(req)
+  // Si hay errores:
+  if (!resultado.isEmpty()) {
+    // Renderizo los errores
+    return res.render('auth/login', {
+      pagina: 'Iniciar Sesión',
+      csrfToken: req.csrfToken(),
+      errores: resultado.array()
+    })
+  }
+  const { email, password } = req.body
+  // Comprobar si el usuario existe
+  const usuario = await Usuario.findOne({ where: { email } })
+  // Si no existe el usuario:
+  if (!usuario) {
+    // Renderizo los errores
+    return res.render('auth/login', {
+      pagina: 'Iniciar Sesión',
+      csrfToken: req.csrfToken(),
+      errores: [{ msg: 'El Email no esta registrado.' }]
+    })
+  }
+  // Si el usuario no esta confirmado
+  if (!usuario.confirmado) {
+    // Renderizo los errores
+    return res.render('auth/login', {
+      pagina: 'Iniciar Sesión',
+      csrfToken: req.csrfToken(),
+      errores: [{ msg: 'Tu Cuenta no ha sido confirmada.' }]
+    })
+  }
+  // Revisar que la contraseña sea correcta
+  if (!usuario.verificarPassword(password)) {
+    // Renderizo los errores
+    return res.render('auth/login', {
+      pagina: 'Iniciar Sesión',
+      csrfToken: req.csrfToken(),
+      errores: [{ msg: 'La contraseña que ingresaste es incorrecta.' }]
+    })
+  }
+  // Autenticar al usuario
+  const token = generarJWT({
+    id: usuario.id,
+    nombre: usuario.nombre,
+    email: usuario.email
+  })
+  // Almacenar el token en una cookie
+  return res.cookie('_token', token, {
+    httpOnly: true
+    // secure: true,
+    // sameSite: true
+  }).redirect('/mis-propiedades')
+}
+
 const formularioRegistro = (req, res) => {
-  console.log(req.csrfToken())
   res.render('auth/registro', {
     pagina: 'Crear Cuenta',
     csrfToken: req.csrfToken()
@@ -164,6 +222,14 @@ const nuevoPassword = async (req, res) => {
   const { password } = req.body
   // Recuperar el usuario con el token
   const usuario = await Usuario.findOne({ where: { token } })
+  // Si el nuevo password es igual al anteror:
+  if (usuario.verificarPassword(password)) {
+    return res.render('auth/reset-password', {
+      pagina: 'Reestablecer tu Contraseña',
+      csrfToken: req.csrfToken(),
+      errores: [{ msg: 'La nueva contraseña no puede ser igual a la anterior.' }]
+    })
+  }
   // Hashear el password
   const salt = await bcrypt.genSalt(10)
   usuario.password = await bcrypt.hash(password, salt)
@@ -203,6 +269,7 @@ const Confirmar = async (req, res) => {
 
 export {
   formularioLogin,
+  Autenticar,
   formularioRegistro,
   formularioOlvidePassword,
   Registrar,
