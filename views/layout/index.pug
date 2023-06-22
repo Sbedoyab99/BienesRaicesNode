@@ -6,5 +6,7 @@ html(lang="es")
 		link(rel="stylesheet", href="/css/app.css")
 		title Bienes Raices | #{pagina}
 	body(class='min-h-screen bg-gray-50')
+		if barra
+			include header
 		main(class='mx-auto container mt-10 px-2')
 			block contenido
