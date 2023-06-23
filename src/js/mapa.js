@@ -1,8 +1,8 @@
 /* eslint-disable n/handle-callback-err */
 
 (function () {
-  const lat = 6.239522
-  const lng = -75.575589
+  const lat = document.querySelector('#lat').value || 6.239522
+  const lng = document.querySelector('#lng').value || -75.575589
   const mapa = L.map('mapa').setView([lat, lng], 11.5)
   let marker
 

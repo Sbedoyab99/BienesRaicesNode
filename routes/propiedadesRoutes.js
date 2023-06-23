@@ -1,12 +1,19 @@
 import express from 'express'
-import { body, ExpressValidator } from 'express-validator'
-import { admin, crear, guardar } from '../controllers/PropiedadController.js'
+import { admin, crear, guardar, agregarImagen, almacenarImagen } from '../controllers/PropiedadController.js'
+import protegerRuta from '../middleware/protegerRuta.js'
+import upload from '../middleware/subirArchivo.js'
 
 const router = express.Router()
 
-router.get('/mis-propiedades', admin)
-router.get('/propiedades/crear', crear)
-router.post('/propiedades/crear', guardar)
+// Routing
+// Dashboard mis propiedades
+router.get('/mis-propiedades', protegerRuta, admin)
+// Formulario de crear nueva propiedad
+router.get('/propiedades/crear', protegerRuta, crear)
+router.post('/propiedades/crear', protegerRuta, guardar)
+// Formulario de agregar imagen a una propiedad
+router.get('/propiedades/agregar-imagen/:id', protegerRuta, agregarImagen)
+router.post('/propiedades/agregar-imagen/:id', protegerRuta, upload.single('imagen'), almacenarImagen)
 
 
 export default router
