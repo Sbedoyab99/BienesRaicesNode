@@ -2,8 +2,7 @@ import { exit } from 'node:process'
 import db from '../config/db.js'
 import categorias from './categorias.js'
 import precios from './precios.js'
-import Categoria from '../models/Categoria.js'
-import Precio from '../models/Precio.js'
+import { Categoria, Precio } from '../models/index.js'
 
 const importarDatos = async () => {
   try {
@@ -12,7 +11,8 @@ const importarDatos = async () => {
     await Promise.all([
       Categoria.bulkCreate(categorias),
       Precio.bulkCreate(precios)
-    ]).then(console.log('Datos Importados Correctamente'))
+    ])
+    console.log('Datos Importados Correctamente')
     exit()
   } catch (error) {
     console.log(error)
@@ -22,4 +22,23 @@ const importarDatos = async () => {
 
 if (process.argv[2] === '-i') {
   importarDatos()
+}
+
+const eliminarDatos = async () => {
+  try {
+    await Promise.all([
+      Categoria.destroy({ where: {}, truncate: true }),
+      Precio.destroy({ where: {}, truncate: true })
+      // await db.sync({ force: true }) **Usar cuando son muchas tablas
+    ])
+    console.log('Datos Eliminados Correctamente')
+    exit()
+  } catch (error) {
+    console.log(error)
+    exit(1)
+  }
+}
+
+if (process.argv[2] === '-e') {
+  eliminarDatos()
 }
