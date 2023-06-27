@@ -1,5 +1,5 @@
 import express from 'express'
-import { admin, crear, guardar, agregarImagen, almacenarImagen } from '../controllers/PropiedadController.js'
+import { admin, crear, guardar, agregarImagen, almacenarImagen, editar, guardarCambios, eliminar, mostrarPropiedad } from '../controllers/PropiedadController.js'
 import protegerRuta from '../middleware/protegerRuta.js'
 import upload from '../middleware/subirArchivo.js'
 
@@ -14,6 +14,13 @@ router.post('/propiedades/crear', protegerRuta, guardar)
 // Formulario de agregar imagen a una propiedad
 router.get('/propiedades/agregar-imagen/:id', protegerRuta, agregarImagen)
 router.post('/propiedades/agregar-imagen/:id', protegerRuta, upload.single('imagen'), almacenarImagen)
+// Formulario Editar propiedad
+router.get('/propiedades/editar/:id', protegerRuta, editar)
+router.post('/propiedades/editar/:id', protegerRuta, guardarCambios)
+// Eliminar Propiedad
+router.post('/propiedades/eliminar/:id', protegerRuta, eliminar)
 
+/** Area Publica */
+router.get('/propiedad/:id', mostrarPropiedad)
 
 export default router
