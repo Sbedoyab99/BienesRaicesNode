@@ -1,5 +1,5 @@
 import express from 'express'
-import { admin, crear, guardar, agregarImagen, almacenarImagen, editar, guardarCambios, eliminar, mostrarPropiedad, enviarMensaje, verMensajes } from '../controllers/PropiedadController.js'
+import { admin, crear, guardar, agregarImagen, almacenarImagen, editar, guardarCambios, eliminar, cambiarEstado, mostrarPropiedad, enviarMensaje, verMensajes } from '../controllers/PropiedadController.js'
 import protegerRuta from '../middleware/protegerRuta.js'
 import upload from '../middleware/subirArchivo.js'
 import identificarUsuario from '../middleware/identificarUsuario.js'
@@ -20,6 +20,8 @@ router.get('/propiedades/editar/:id', protegerRuta, editar)
 router.post('/propiedades/editar/:id', protegerRuta, guardarCambios)
 // Eliminar Propiedad
 router.post('/propiedades/eliminar/:id', protegerRuta, eliminar)
+// Cambiar estado de la propiedad
+router.put('/propiedades/:id', protegerRuta, cambiarEstado)
 
 /** Area Publica */
 router.get('/propiedad/:id', identificarUsuario, mostrarPropiedad)

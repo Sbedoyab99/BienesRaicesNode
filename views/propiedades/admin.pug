@@ -1,5 +1,8 @@
 extends ../layout/admin
 
+block styles
+  meta(name='csrf-token' content=csrfToken)
+
 block contenido
   div(class="py-10")
     h1(class="text-4xl my-10 font-extrabold text-center") Bienes
@@ -29,10 +32,8 @@ block contenido
                       path(fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v.816a3.836 3.836 0 00-1.72.756c-.712.566-1.112 1.35-1.112 2.178 0 .829.4 1.612 1.113 2.178.502.4 1.102.647 1.719.756v2.978a2.536 2.536 0 01-.921-.421l-.879-.66a.75.75 0 00-.9 1.2l.879.66c.533.4 1.169.645 1.821.75V18a.75.75 0 001.5 0v-.81a4.124 4.124 0 001.821-.749c.745-.559 1.179-1.344 1.179-2.191 0-.847-.434-1.632-1.179-2.191a4.122 4.122 0 00-1.821-.75V8.354c.29.082.559.213.786.393l.415.33a.75.75 0 00.933-1.175l-.415-.33a3.836 3.836 0 00-1.719-.755V6z" clip-rule="evenodd") 
                     = propiedad.precio.nombre
                   a(href=`/mensajes/${propiedad.id}` class="text-sm text-gray-600")= `${propiedad.mensajes.length} Mensajes`
-                div(class="sm:w-1/4 md:w-2/6 lg:w-1-6 flex flex-1 flex-col gap-2 md:flex-row")
-                  form(action="#")
-                    input(type="hidden" name="_csrf" value=csrfToken)
-                    input(type="submit" class=`w-full px-2 py-2 md:py-2 text-xs leading-5 font-semibold rounded cursor-pointer ${propiedad.publicado ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}` value=`${propiedad.publicado ? 'Publicado' : 'No Publicado'}`) 
+                div(class="sm:w-1/4 md:w-2/6 lg:w-1-6 flex flex-col gap-2 md:flex-row")
+                  button(type="button" data-propiedad-id=`${propiedad.id}` id='cambiar-estado' class=`w-full px-2 py-2 md:py-2 text-xs leading-5 font-semibold rounded cursor-pointer ${propiedad.publicado ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`)= `${propiedad.publicado ? 'Publicado' : 'No Publicado'}`
                   a(href=`/propiedades/editar/${propiedad.id}` class=" text-center px-2 py-2 md:py-2 text-xs leading-5 font-semibold rounded cursor-pointer bg-indigo-100 text-indigo-800") Editar
                   form(action=`/propiedades/eliminar/${propiedad.id}` method='POST')
                     input(type="hidden" name="_csrf" value=csrfToken)
@@ -53,3 +54,6 @@ block contenido
                     a(href=`/mis-propiedades?pagina=${n}` class=`realtive inline-flex items-center px-4 py-2 border text-sm font-medium ${paginaActual == n ? 'bg-indigo-50 border-indigo-500 text-indigo-600' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'}`) #{n++}        
     else          
       p(class="text-center") No hay propiedades
+
+block scripts 
+  script(src="/js/cambiarEstado.js")

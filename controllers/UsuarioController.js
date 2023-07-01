@@ -69,6 +69,10 @@ const Autenticar = async (req, res) => {
   }).redirect('/mis-propiedades')
 }
 
+const logout = (req, res) => {
+  return res.clearCookie('_token').status(200).redirect('/')
+}
+
 const formularioRegistro = (req, res) => {
   res.render('auth/registro', {
     pagina: 'Crear Cuenta',
@@ -270,6 +274,7 @@ const Confirmar = async (req, res) => {
 export {
   formularioLogin,
   Autenticar,
+  logout,
   formularioRegistro,
   formularioOlvidePassword,
   Registrar,
