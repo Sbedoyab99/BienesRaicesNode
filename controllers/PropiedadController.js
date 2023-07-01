@@ -270,7 +270,9 @@ const eliminar = async (req, res) => {
   await unlink(`public/uploads/${propiedad.imagen}`)
   // Eliminar la propiedad
   await propiedad.destroy()
-  res.redirect('/mis-propiedades')
+  res.json({
+    resultado: true
+  })
 }
 
 const cambiarEstado = async (req, res) => {
