@@ -1,6 +1,7 @@
 import { unlink } from 'node:fs/promises'
 import { validationResult, check } from 'express-validator'
-import { Precio, Categoria, Propiedad } from '../models/index.js'
+import { Precio, Categoria, Propiedad, Mensaje, Usuario } from '../models/index.js'
+import { esVendedor, formatearFecha } from '../helpers/index.js'
 
 const admin = async (req, res) => {
   const { pagina: paginaActual } = req.query
@@ -21,7 +22,8 @@ const admin = async (req, res) => {
         },
         include: [
           { model: Categoria, as: 'categoria' },
-          { model: Precio, as: 'precio' }
+          { model: Precio, as: 'precio' },
+          { model: Mensaje, as: 'mensajes' }
         ]
       }),
       Propiedad.count({
@@ -288,7 +290,87 @@ const mostrarPropiedad = async (req, res) => {
   res.render('propiedades/mostrar', {
     propiedad,
     pagina: propiedad.titulo,
-    csrfToken: req.csrfToken()
+    csrfToken: req.csrfToken(),
+    usuario: req.usuario,
+    esVendedor: esVendedor(req.usuario?.id, propiedad.usuarioId)
+  })
+}
+
+const enviarMensaje = async (req, res) => {
+  // Extraer el id de la propiedad
+  const { id } = req.params
+  // Validar que la propiedad exista
+  const propiedad = await Propiedad.findByPk(id, {
+    include: [
+      { model: Precio, as: 'precio' },
+      { model: Categoria, as: 'categoria' }
+    ]
+  })
+  // Si la propiedad no existe:
+  if (!propiedad) {
+    return res.redirect('/404')
+  }
+  // Renderizar errores
+  await check('mensaje').isLength({ min: 10 }).withMessage('El mensaje es muy corto (min. 10 caracteres).').run(req)
+  const resultado = validationResult(req)
+  console.log(resultado.isEmpty())
+  // Si hay errores:
+  if (!resultado.isEmpty()) {
+    return res.render('propiedades/mostrar', {
+      propiedad,
+      pagina: propiedad.titulo,
+      csrfToken: req.csrfToken(),
+      usuario: req.usuario,
+      errores: resultado.array(),
+      esVendedor: esVendedor(req.usuario?.id, propiedad.usuarioId)
+    })
+  }
+  // Almacenar el mensaje
+  const { mensaje } = req.body
+  const { id: propiedadId } = req.params
+  const { id: usuarioId } = req.usuario
+  await Mensaje.create({
+    mensaje,
+    propiedadId,
+    usuarioId
+  })
+  return res.render('propiedades/mostrar', {
+    propiedad,
+    pagina: propiedad.titulo,
+    csrfToken: req.csrfToken(),
+    usuario: req.usuario,
+    esVendedor: esVendedor(req.usuario?.id, propiedad.usuarioId),
+    enviado: true
+  })
+}
+
+const verMensajes = async (req, res) => {
+  // Extraer el id de la propiedad
+  const { id } = req.params
+  // Validar que la propiedad exista
+  const propiedad = await Propiedad.findByPk(id, {
+    include: [
+      {
+        model: Mensaje,
+        as: 'mensajes',
+        include: [
+          { model: Usuario.scope('excludeAttr'), as: 'usuario' }
+        ]
+      }
+    ]
+  })
+  // Si la propiedad no existe:
+  if (!propiedad) {
+    return res.redirect('/mis-propiedades')
+  }
+  // Revisar que quien visita la pagina fue el creador
+  if (propiedad.usuarioId.toString() !== req.usuario.id.toString()) {
+    return res.redirect('/mis-propiedades')
+  }
+  res.render('propiedades/mensajes', {
+    pagina: 'Mensajes',
+    mensajes: propiedad.mensajes,
+    formatearFecha
   })
 }
 
@@ -301,5 +383,7 @@ export {
   editar,
   guardarCambios,
   eliminar,
-  mostrarPropiedad
+  mostrarPropiedad,
+  enviarMensaje,
+  verMensajes
 }

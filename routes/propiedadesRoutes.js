@@ -1,7 +1,8 @@
 import express from 'express'
-import { admin, crear, guardar, agregarImagen, almacenarImagen, editar, guardarCambios, eliminar, mostrarPropiedad } from '../controllers/PropiedadController.js'
+import { admin, crear, guardar, agregarImagen, almacenarImagen, editar, guardarCambios, eliminar, mostrarPropiedad, enviarMensaje, verMensajes } from '../controllers/PropiedadController.js'
 import protegerRuta from '../middleware/protegerRuta.js'
 import upload from '../middleware/subirArchivo.js'
+import identificarUsuario from '../middleware/identificarUsuario.js'
 
 const router = express.Router()
 
@@ -21,6 +22,8 @@ router.post('/propiedades/editar/:id', protegerRuta, guardarCambios)
 router.post('/propiedades/eliminar/:id', protegerRuta, eliminar)
 
 /** Area Publica */
-router.get('/propiedad/:id', mostrarPropiedad)
+router.get('/propiedad/:id', identificarUsuario, mostrarPropiedad)
+router.post('/propiedad/:id', identificarUsuario, enviarMensaje)
+router.get('/mensajes/:id', protegerRuta, verMensajes)
 
 export default router
